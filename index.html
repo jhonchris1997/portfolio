@@ -170,6 +170,24 @@
   .skeleton{background:linear-gradient(90deg, var(--bg-soft) 25%, var(--line) 37%, var(--bg-soft) 63%); background-size:400% 100%; animation:shimmer 1.4s ease infinite; aspect-ratio:4/3; border:1px solid var(--line);}
   @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:0 0;}}
 
+  /* ---------- lightbox (click-to-zoom on field note maps) ---------- */
+  .fn-card .thumb{cursor:zoom-in;}
+  .lightbox{
+    position:fixed; inset:0; background:rgba(20,20,18,0.94); z-index:200;
+    display:flex; align-items:center; justify-content:center; padding:clamp(1rem,4vw,3rem);
+    opacity:0; visibility:hidden; transition:opacity .2s ease;
+  }
+  .lightbox.open{opacity:1; visibility:visible;}
+  .lightbox figure{margin:0; max-width:min(94vw,1100px); max-height:90vh; display:flex; flex-direction:column; align-items:center;}
+  .lightbox img{max-width:100%; max-height:78vh; object-fit:contain; border-radius:4px; box-shadow:0 20px 60px -20px rgba(0,0,0,0.6);}
+  .lightbox figcaption{color:var(--bg); font-family:var(--font-mono); font-size:0.78rem; margin-top:1rem; text-align:center; opacity:0.85; max-width:640px;}
+  .lightbox-close{
+    position:absolute; top:1.3rem; right:1.5rem; background:transparent; border:1px solid rgba(255,255,255,0.35);
+    color:var(--bg); width:42px; height:42px; border-radius:50%; font-size:1.5rem; line-height:1;
+    cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s;
+  }
+  .lightbox-close:hover{border-color:var(--bg); background:rgba(255,255,255,0.12);}
+
   /* ---------- modal ---------- */
   .modal-overlay{position:fixed; inset:0; background:rgba(20,20,18,0.4); backdrop-filter:blur(2px); display:none; align-items:center; justify-content:center; z-index:100; padding:1.2rem;}
   .modal-overlay.open{display:flex;}
@@ -437,6 +455,14 @@
   </div>
 </section>
 
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close image">&times;</button>
+  <figure>
+    <img id="lightboxImg" src="" alt="">
+    <figcaption id="lightboxCap"></figcaption>
+  </figure>
+</div>
+
 <footer id="contact">
   <div class="wrap">
     <div><div class="eyebrow"><b>06</b> — Contact</div></div>
@@ -461,14 +487,35 @@
   // category must match one of: "Deforestation & Forest Monitoring",
   // "InSAR & Hazard", "CLUP / CDRA", "Drone / UAV", "Research"
   var fieldNotes = [
-    // Example — copy this shape for each new map, then remove the example:
-    // {
-    //   title: "Deforestation hotspot map — CADT 4",
-    //   category: "Deforestation & Forest Monitoring",
-    //   caption: "CUSUM-based change detection output, Q2 2026.",
-    //   dateLabel: "July 2026",
-    //   image: "images/maps/cadt4-hotspot.jpg"
-    // }
+    {
+      title: "Flood Risk Map — Dinas",
+      category: "CLUP / CDRA",
+      caption: "Flood risk assessment output for Dinas, Zamboanga del Sur.",
+      dateLabel: "2026",
+      image: "images/maps/dinas-flood-risk.jpg"
+    },
+    {
+      title: "Landslide Risk Map — Dinas",
+      category: "CLUP / CDRA",
+      caption: "Rain-induced landslide risk assessment for Dinas, Zamboanga del Sur.",
+      dateLabel: "2026",
+      image: "images/maps/dinas-landslide-risk.jpg"
+    },
+    {
+      title: "Liquefaction Risk Map — Dinas",
+      category: "CLUP / CDRA",
+      caption: "Liquefaction risk assessment for Dinas, Zamboanga del Sur.",
+      dateLabel: "2026",
+      image: "images/maps/dinas-liquefaction-risk.jpg"
+    },
+    {
+      title: "Storm Surge Risk Map — Dinas",
+      category: "CLUP / CDRA",
+      caption: "Storm surge risk assessment for Dinas, Zamboanga del Sur.",
+      dateLabel: "2026",
+      image: "images/maps/dinas-storm-surge-risk.jpg"
+    }
+    // Add more maps here — copy one of the blocks above and edit it.
   ];
 
   var state = { filter: 'all' };
@@ -511,6 +558,39 @@
     if (items.length === 0){ renderEmpty(state.filter !== 'all'); return; }
     fnGrid.innerHTML = items.map(cardHtml).join('');
   }
+
+  // ---- Lightbox (click a map to zoom) ----
+  var lightbox = document.getElementById('lightbox');
+  var lightboxImg = document.getElementById('lightboxImg');
+  var lightboxCap = document.getElementById('lightboxCap');
+  var lightboxClose = document.getElementById('lightboxClose');
+
+  function openLightbox(src, caption){
+    lightboxImg.src = src;
+    lightboxImg.alt = caption || '';
+    lightboxCap.textContent = caption || '';
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox(){
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    lightboxImg.src = '';
+  }
+  if (fnGrid){
+    fnGrid.addEventListener('click', function(e){
+      var img = e.target.closest('.thumb img');
+      if (!img) return;
+      openLightbox(img.src, img.alt);
+    });
+  }
+  if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+  if (lightbox){
+    lightbox.addEventListener('click', function(e){ if (e.target === lightbox) closeLightbox(); });
+  }
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeLightbox(); });
 
   var chipRow = document.getElementById('chipRow');
   if (chipRow){
