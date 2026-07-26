@@ -46,17 +46,79 @@
   .eyebrow b{color:var(--accent); font-weight:600;}
   h1,h2,h3{font-family:var(--font-sans); font-weight:800; letter-spacing:-0.02em; margin:0;}
 
-  /* ---------- nav ---------- */
-  header.site{
-    position:sticky; top:0; z-index:40; background:rgba(255,255,255,0.86); backdrop-filter:blur(10px);
-    border-bottom:1px solid var(--line);
+  /* ---------- dark theme ---------- */
+  html[data-theme="dark"]{
+    --bg:#141412;
+    --bg-soft:#1B1B18;
+    --ink:#F2F1EC;
+    --ink-soft:#A8A79C;
+    --line:#2A2A26;
+    --line-strong:#3A3A34;
+    --accent:#7FBF8A;
+    --accent-soft:#1B2A1E;
+    --danger:#E08573;
   }
-  .navrow{display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; max-width:var(--maxw); margin:0 auto; gap:1rem;}
-  .navname{font-weight:700; font-size:0.95rem;}
-  nav.links{display:flex; gap:1.5rem; overflow-x:auto; scrollbar-width:none; font-size:0.88rem; color:var(--ink-soft);}
-  nav.links::-webkit-scrollbar{display:none;}
-  nav.links a{white-space:nowrap; transition:color .15s;}
-  nav.links a:hover{color:var(--accent);}
+  html[data-theme="dark"] body{-webkit-font-smoothing:antialiased;}
+
+  /* ---------- sidebar nav ---------- */
+  .sidebar-toggle{
+    position:fixed; top:1rem; left:1rem; z-index:60; display:none;
+    width:42px; height:42px; border-radius:8px; border:1px solid var(--line); background:var(--bg);
+    align-items:center; justify-content:center; cursor:pointer;
+  }
+  .sidebar-toggle svg{width:18px; height:18px; color:var(--ink);}
+  .sidebar-backdrop{
+    position:fixed; inset:0; background:rgba(20,20,18,0.4); z-index:45;
+    opacity:0; visibility:hidden; transition:opacity .2s ease;
+  }
+  .sidebar-backdrop.open{opacity:1; visibility:visible;}
+
+  .sidebar{
+    position:fixed; top:0; left:0; width:240px; height:100vh; z-index:50;
+    background:var(--bg); border-right:1px solid var(--line);
+    display:flex; overflow-y:auto;
+  }
+  .sb-inner{display:flex; flex-direction:column; min-height:100%; width:100%; padding:1.8rem 1.3rem 1.4rem;}
+  .sb-name{font-weight:800; font-size:1.02rem; line-height:1.3; margin-bottom:2rem;}
+
+  .sb-nav{display:flex; flex-direction:column; gap:0.25rem;}
+  .sb-nav a{
+    display:flex; align-items:center; gap:0.75rem; padding:0.55rem 0.6rem; border-radius:6px;
+    font-size:0.87rem; color:var(--ink-soft); transition:all .15s;
+  }
+  .sb-nav a svg{width:16px; height:16px; flex-shrink:0;}
+  .sb-nav a:hover{background:var(--bg-soft); color:var(--ink);}
+  .sb-nav a.active{background:var(--accent-soft); color:var(--accent);}
+
+  .sb-spacer{flex:1; min-height:1.5rem;}
+
+  .sb-shortcuts{display:flex; flex-direction:column; gap:0.55rem; padding:0.9rem 0.6rem; border-top:1px solid var(--line); font-size:0.76rem; color:var(--ink-soft);}
+  .sb-shortcut-row{display:flex; align-items:center; justify-content:space-between; gap:0.6rem;}
+  kbd{font-family:var(--font-mono); font-size:0.66rem; border:1px solid var(--line-strong); border-radius:4px; padding:0.1rem 0.4rem; background:var(--bg-soft); color:var(--ink-soft);}
+
+  .sb-theme{display:flex; gap:0.4rem; padding:0.3rem 0.6rem 1rem;}
+  .theme-btn{
+    width:32px; height:32px; border-radius:6px; border:1px solid var(--line); background:var(--bg);
+    color:var(--ink-soft); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s;
+  }
+  .theme-btn svg{width:15px; height:15px;}
+  .theme-btn:hover{border-color:var(--line-strong); color:var(--ink);}
+  .theme-btn.active{border-color:var(--accent); color:var(--accent); background:var(--accent-soft);}
+
+  .sb-contact{padding:1rem 0.6rem 0; border-top:1px solid var(--line); font-size:0.78rem; color:var(--ink-soft);}
+  .sb-contact p{margin:0 0 0.6rem; line-height:1.5;}
+  .sb-contact a{display:flex; align-items:flex-start; gap:0.5rem; color:var(--ink); font-size:0.78rem; word-break:break-all; line-height:1.4;}
+  .sb-contact a svg{width:14px; height:14px; flex-shrink:0; color:var(--ink-soft); margin-top:0.1rem;}
+  .sb-contact a:hover{color:var(--accent);}
+
+  .main{margin-left:240px;}
+
+  @media(max-width:900px){
+    .sidebar-toggle{display:flex;}
+    .sidebar{transform:translateX(-100%); transition:transform .25s ease; box-shadow:0 0 40px rgba(0,0,0,0.18);}
+    .sidebar.open{transform:translateX(0);}
+    .main{margin-left:0;}
+  }
 
   /* ---------- hero ---------- */
   .hero{padding:clamp(3rem,8vw,5.5rem) 0 clamp(2.5rem,6vw,4rem); border-bottom:1px solid var(--line);}
@@ -223,19 +285,53 @@
 </head>
 <body>
 
-<header class="site">
-  <div class="navrow">
-    <div class="navname">Jhon Chris Alipao</div>
-    <nav class="links">
-      <a href="#projects">Projects</a>
-      <a href="#experience">Experience</a>
-      <a href="#stack">Stack</a>
-      <a href="#certifications">Certifications</a>
-      <a href="#field-notes">Field Notes</a>
-      <a href="#contact">Contact</a>
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Open menu">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+</button>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sb-inner">
+    <div class="sb-name">Jhon Chris<br>Alipao</div>
+
+    <nav class="sb-nav" id="sbNav">
+      <a href="#projects"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg><span>Projects</span></a>
+      <a href="#experience"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><span>Experience</span></a>
+      <a href="#stack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg><span>Stack</span></a>
+      <a href="#certifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M9 14 7 22l5-3 5 3-2-8"/></svg><span>Certifications</span></a>
+      <a href="#field-notes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><span>Field Notes</span></a>
     </nav>
+
+    <div class="sb-spacer"></div>
+
+    <div class="sb-shortcuts">
+      <div class="sb-shortcut-row"><span>Jump to top</span><span><kbd>Alt</kbd>+<kbd>T</kbd></span></div>
+      <div class="sb-shortcut-row"><span>Toggle theme</span><span><kbd>Alt</kbd>+<kbd>D</kbd></span></div>
+    </div>
+
+    <div class="sb-theme">
+      <button class="theme-btn" data-theme-choice="light" aria-label="Light theme" title="Light">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+      </button>
+      <button class="theme-btn" data-theme-choice="dark" aria-label="Dark theme" title="Dark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="theme-btn" data-theme-choice="system" aria-label="Match system theme" title="System">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      </button>
+    </div>
+
+    <div class="sb-contact">
+      <p>For work, collabs, and everything else, reach me at</p>
+      <a href="mailto:jhonchris.alipao16@gmail.com">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/></svg>
+        <span>jhonchris.alipao16@gmail.com</span>
+      </a>
+    </div>
   </div>
-</header>
+</aside>
+
+<main class="main">
 
 <section class="hero">
   <div class="wrap">
@@ -478,6 +574,8 @@
   </div>
 </footer>
 
+</main>
+
 <script>
 (function(){
   'use strict';
@@ -590,8 +688,6 @@
   if (lightbox){
     lightbox.addEventListener('click', function(e){ if (e.target === lightbox) closeLightbox(); });
   }
-  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeLightbox(); });
-
   var chipRow = document.getElementById('chipRow');
   if (chipRow){
     chipRow.addEventListener('click', function(e){
@@ -602,6 +698,95 @@
       state.filter = btn.getAttribute('data-cat');
       renderGrid();
     });
+  }
+
+  // ---- Sidebar (mobile toggle) ----
+  var sidebar = document.getElementById('sidebar');
+  var sidebarToggle = document.getElementById('sidebarToggle');
+  var sidebarBackdrop = document.getElementById('sidebarBackdrop');
+
+  function openSidebar(){
+    sidebar.classList.add('open');
+    sidebarBackdrop.classList.add('open');
+  }
+  function closeSidebar(){
+    sidebar.classList.remove('open');
+    sidebarBackdrop.classList.remove('open');
+  }
+  if (sidebarToggle){
+    sidebarToggle.addEventListener('click', function(){
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+  }
+  if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
+  document.querySelectorAll('#sbNav a').forEach(function(a){
+    a.addEventListener('click', closeSidebar);
+  });
+
+  // ---- Theme: light / dark / system ----
+  var THEME_KEY = 'jca-theme-preference';
+  var themeBtns = document.querySelectorAll('.theme-btn');
+  var mq = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function getStoredTheme(){
+    try { return localStorage.getItem(THEME_KEY); } catch(e){ return null; }
+  }
+  function storeTheme(pref){
+    try { localStorage.setItem(THEME_KEY, pref); } catch(e){}
+  }
+  function resolveTheme(pref){
+    return pref === 'system' ? (mq.matches ? 'dark' : 'light') : pref;
+  }
+  function applyTheme(pref){
+    document.documentElement.setAttribute('data-theme', resolveTheme(pref));
+    themeBtns.forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-theme-choice') === pref);
+    });
+  }
+  function setTheme(pref){
+    storeTheme(pref);
+    applyTheme(pref);
+  }
+  themeBtns.forEach(function(b){
+    b.addEventListener('click', function(){ setTheme(b.getAttribute('data-theme-choice')); });
+  });
+  if (mq.addEventListener){
+    mq.addEventListener('change', function(){
+      if ((getStoredTheme() || 'system') === 'system') applyTheme('system');
+    });
+  }
+  applyTheme(getStoredTheme() || 'system');
+
+  // ---- Keyboard shortcuts: Alt+T (top), Alt+D (theme) ----
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape'){ closeLightbox(); closeSidebar(); return; }
+    if (!e.altKey) return;
+    var k = e.key.toLowerCase();
+    if (k === 't'){
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (k === 'd'){
+      e.preventDefault();
+      var order = ['light', 'dark', 'system'];
+      var current = getStoredTheme() || 'system';
+      setTheme(order[(order.indexOf(current) + 1) % order.length]);
+    }
+  });
+
+  // ---- Highlight the active section in the sidebar while scrolling ----
+  var sbLinks = document.querySelectorAll('#sbNav a');
+  var navSections = document.querySelectorAll('section[id]');
+  if ('IntersectionObserver' in window && navSections.length){
+    var navObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting){
+          sbLinks.forEach(function(a){
+            a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+    navSections.forEach(function(s){ navObserver.observe(s); });
   }
 
   if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches){
